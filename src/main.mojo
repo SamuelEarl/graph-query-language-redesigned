@@ -46,7 +46,7 @@ struct KVStore:
 
     var store: StoreDict
 
-    def __init__(out self, owned store: Dict[String, CollectionDict]):
+    def __init__(out self, store: StoreDict):
         """Initializes the key-value store.
 
         Args:
