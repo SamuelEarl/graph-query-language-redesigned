@@ -8,8 +8,9 @@ from python import Python
 from utils import Variant
 # import uuid_utils as uuid
 
-alias MixedValue = Variant[String, Int]
-alias NestedDict = Dict[String, MixedValue]
+alias MixedValue = Variant[String, Int, Float64, Bool]
+alias PropsDict = Dict[String, MixedValue]
+alias CollectionDict = Dict[String, PropsDict]
 
 def generate_uuid() -> String:
     """Returns a uuid. TODO: Update this to uuidv7 instead of uuidv4.
@@ -34,23 +35,23 @@ struct KVStore():
     {
         "collection_name": {
             "id": {
-                "prop1": "value1",
-                "prop2": "value2",
-                "prop3": "value3",
+                "prop1": "String1",
+                "prop2": Int1,
+                "prop3": Bool1,
             }
         }
     }
     """
 
-    var store: Dict[String, NestedDict]
+    var store: Dict[String, CollectionDict]
 
-    def __init__(out self, var store: Dict[String, NestedDict]):
+    def __init__(out self, owned store: Dict[String, CollectionDict]):
         """Initializes the key-value store.
 
         Args:
             store: A dictionary that holds the data in memory.
         """
-        self.store = {}
+        self.store = store
 
     # def __str__(self) -> String:
     #     """Returns a string representation of the store.
@@ -71,7 +72,7 @@ struct KVStore():
     #     return String('Record "{}" not found').format(collection_id)
     
     # # TODO: Implement try/except blocks and pass an error to this function when an error occurs.
-    # def get_return_statement(self, error: Bool, data: NestedDict, CRUD: String, collection_id: String):
+    # def get_return_statement(self, error: Bool, data: PropsDict, CRUD: String, collection_id: String):
     #     return {
     #         "data": data,
     #         "metadata": {
@@ -96,15 +97,15 @@ struct KVStore():
         props["id"] = String("{0}:{1}").format(collection, id)
         # If the collection key is not in the store, then add it along with an empty dict as its value.
         if not collection in self.store:
-            self.store[collection] = {}
+            self.store[collection]: Dict[String, CollectionDict] = { id: props }
+            # self.store[collection] = Dict[String, CollectionDict]({ id: props })
             # I think `self.store._find_ref(collection)` returns a mutable reference to an entry in a Dict (https://forum.modular.com/t/how-to-return-a-mutable-reference-to-a-dict-entry/1508/6), but I can't figure out how to add an entry to a Dict.
-            # TODO: ALERT: Come back to Mojo later when it is stable.
-            # I keep getting errors like this: `error: invalid call to '__setitem__': invalid use of mutating method on rvalue of type 'Dict[String, Dict[String, Variant[String, Int]]]'`.
+            # I keep getting errors like this: `error: invalid call to '__setitem__': invalid use of mutating method on rvalue of type 'Dict[String, Dict[String, Dict[String, Variant[String, Int]]]]'`.
             # I don't want to run into the issues that this guy has run into with breaking code: https://forum.modular.com/t/dict-get-ptr-method-suitable-permanent-replacement-for-application-code/1436/18.
             # Maybe I will prototype this database in Python and convert it to Mojo after Mojo has a stable API, current documentation, and a much larger community that can help solve the issues that I am running into.
-
-            
-        # self.store[collection][id] = props
+        # else:
+        #    self.store[collection][id] = Dict[String, PropsDict](props)
+        
         # return_data = self.store[collection][id]
         # return self.get_return_statement(False, return_data, "Created", collection_id)
         # except e:
@@ -179,7 +180,8 @@ struct KVStore():
 
 def main():
     try:
-        var db: KVStore = KVStore(store={})
+        var initial_store = Dict[String, CollectionDict]({})
+        var db: KVStore = KVStore(initial_store^)
         # print("DB:", db)
 
         # var id = generate_uuid()
