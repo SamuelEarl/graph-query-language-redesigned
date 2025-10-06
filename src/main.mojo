@@ -11,6 +11,7 @@ from utils import Variant
 alias MixedValue = Variant[String, Int, Float64, Bool]
 alias PropsDict = Dict[String, MixedValue]
 alias CollectionDict = Dict[String, PropsDict]
+alias StoreDict = Dict[String, CollectionDict]
 
 def generate_uuid() -> String:
     """Returns a uuid. TODO: Update this to uuidv7 instead of uuidv4.
@@ -27,7 +28,7 @@ def split_string(collection_id: String, separator: String) -> Tuple[String, Stri
     # Convert StringSlices to Strings inside a two-item tuple and return the tuple.
     return (String(parts[0]), String(parts[1]))
 
-struct KVStore():
+struct KVStore:
     """A minimal KV store, which is a memtable + Write-Ahead Log (WAL).
 
     The KVStore will look like this:
@@ -43,7 +44,7 @@ struct KVStore():
     }
     """
 
-    var store: Dict[String, CollectionDict]
+    var store: StoreDict
 
     def __init__(out self, owned store: Dict[String, CollectionDict]):
         """Initializes the key-value store.
@@ -51,7 +52,12 @@ struct KVStore():
         Args:
             store: A dictionary that holds the data in memory.
         """
-        self.store = store
+        # self.store = store
+        self.store = StoreDict()
+
+    # TODO: Do I need to override the __setitem__ method?
+    # def __setitem__(self, key: String, val: Variant[CollectionDict, PropsDict]):
+    #     self.store[key] = val
 
     # def __str__(self) -> String:
     #     """Returns a string representation of the store.
@@ -81,7 +87,7 @@ struct KVStore():
     #         },
     #     }
 
-    def create(self, collection_id: String, mut props: Dict[String, MixedValue]):
+    def create(self, collection_id: String, mut props: Dict[String, MixedValue]) -> PropsDict:
         # try:
         var collection, id = split_string(collection_id, ":")
         print("PARTS:", collection, id)
@@ -97,7 +103,7 @@ struct KVStore():
         props["id"] = String("{0}:{1}").format(collection, id)
         # If the collection key is not in the store, then add it along with an empty dict as its value.
         if not collection in self.store:
-            self.store[collection]: Dict[String, CollectionDict] = { id: props }
+            self.store[collection] = CollectionDict()
             # self.store[collection] = Dict[String, CollectionDict]({ id: props })
             # I think `self.store._find_ref(collection)` returns a mutable reference to an entry in a Dict (https://forum.modular.com/t/how-to-return-a-mutable-reference-to-a-dict-entry/1508/6), but I can't figure out how to add an entry to a Dict.
             # I keep getting errors like this: `error: invalid call to '__setitem__': invalid use of mutating method on rvalue of type 'Dict[String, Dict[String, Dict[String, Variant[String, Int]]]]'`.
@@ -180,7 +186,7 @@ struct KVStore():
 
 def main():
     try:
-        var initial_store = Dict[String, CollectionDict]({})
+        var initial_store: StoreDict = {}
         var db: KVStore = KVStore(initial_store^)
         # print("DB:", db)
 
