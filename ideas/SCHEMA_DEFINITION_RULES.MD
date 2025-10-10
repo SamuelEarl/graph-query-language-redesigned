@@ -109,4 +109,11 @@ MORE NOTES:
 
 ## RELATIONS
 
-* relations are enforced through constraints that are defined on the database (i.e. they are not enforced through this package). So the `from` and `to` properties in a `relation` object are not validated against the schema. However, the `from` and `to` properties are for your reference and can be used to help define the structure of your schema.
+* Relations are enforced through constraints that are defined on the database (i.e. they are not enforced through this package). So the `from` and `to` properties in a `relation` object are not validated against the schema. However, the `from` and `to` properties are for your reference and can be used to help define the structure of your schema.
+* The first node that is defined will always be the "from" node and the node that is defined last will always be the "to" node.
+* The "->" indicating a directed relation needs to point from the relationship to the "to" node. For example:
+```
+(Person)
+-[WORKS_FOR]->
+(Company)
+```
