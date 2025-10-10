@@ -49,7 +49,7 @@ export async function quigley(
     if (config.validateQueryInEnvs.includes(NODE_ENV!)) {
       // TODO: 
       // Validate the query objects (nodes and relationships), from the `queryObjs` array, against the schema.
-      // This is called schema validation.
+      // This is called schema validation or schema enforcement.
       // Read about the validations that Mongoose performs: https://mongoosejs.com/docs/validation.html.
       queryValidator(queryClauseObjs);
     }
