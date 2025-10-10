@@ -1,4 +1,4 @@
-import { config } from "../qgly.config";
+import { config } from "../../qgly.config";
 import { schemaSyntaxValidator } from "./schema-syntax-validator";
 import { queryParser } from "./query-parser";
 import { queryValidator } from "./query-validator";

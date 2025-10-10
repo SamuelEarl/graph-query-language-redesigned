@@ -40,10 +40,10 @@ export function createSchemaObj(schemaObjType: string, schemaObjString: string) 
 }
 
 /**
- * This function will remove all comments from the `schema.v*.gqls` file (i.e. everything after a # sign), convert the `schema.v*.gqls` node and relation schema objects to JavaScript objects, and write those JavaScript objects to a new `schema.v*.gqls.ts` file. That `schema.v*.gqls.ts` file will be used to validate the GQL queries.
- * @param schemaFilepath 
+ * This function will remove all comments from the `schema.v*.gqlr` file (i.e. everything after a # sign), convert the `schema.v*.gqlr` node and relation schema objects to JavaScript objects, and write those JavaScript objects to a new `schema.v*.gqlr.ts` file. That `schema.v*.gqlr.ts` file will be used to validate the GQL queries.
+ * @param schemaFilepath
  */
-export async function convertGQLSchemaToTypeScriptSchema(schemaFilepath: string) {
+export async function convertGQLRSchemaToTypeScriptSchema(schemaFilepath: string) {
   try {
     console.log("schemaFilepath:", schemaFilepath);
     const filename = `${schemaFilepath}${fileExtension}`;
@@ -121,7 +121,7 @@ export async function convertGQLSchemaToTypeScriptSchema(schemaFilepath: string)
 
     });
 
-    // The following Promise will allow the execution of this `convertGQLSchemaToTypeScriptSchema()` function to be awaited before execution is returned to the calling function.
+    // The following Promise will allow the execution of this `convertGQLRSchemaToTypeScriptSchema()` function to be awaited before execution is returned to the calling function.
     await new Promise<void>((resolve) => {
       output.on("finish", () => {
         console.log("Finished processing and writing.");
@@ -135,7 +135,7 @@ export async function convertGQLSchemaToTypeScriptSchema(schemaFilepath: string)
     });
   }
   catch(err: any) {
-    handleError("convertGQLSchemaToTypeScriptSchema", err);
+    handleError("convertGQLRSchemaToTypeScriptSchema", err);
     // This `throw err` statement is necessary to prevent TypeScript errors.
     throw err;
   }
@@ -186,8 +186,8 @@ export async function schemaSyntaxValidator(schemasDir: string = config.schemasD
     const absoluteSchemaFilepath = `${schemasDir}/${schemaFile}`;
     console.log("absoluteSchemaFilepath:", absoluteSchemaFilepath);
 
-    // Convert the schema.v*.gqls file to a TypeScript schema file, which will be used to validate the queries.
-    await convertGQLSchemaToTypeScriptSchema(absoluteSchemaFilepath);
+    // Convert the schema.v*.gqlr file to a TypeScript schema file, which will be used to validate the queries.
+    await convertGQLRSchemaToTypeScriptSchema(absoluteSchemaFilepath);
 
     console.log("filepath:", `${absoluteSchemaFilepath}${fileExtension}`);
     let module;
@@ -199,7 +199,7 @@ export async function schemaSyntaxValidator(schemasDir: string = config.schemasD
       throw new Error(`Schema objects must be unique. A schema object named ${err.message}.`);
     }
 
-    // TODO: Since the labels will be auto-generated based on the schema.v*.gqls file, I need to update this function. Do I still need to check for duplicates? Should I throw an error that would make more sense to users who are working with the schema.v*.gqls files? Maybe throwing the error above will address this issue now and the `checkForDuplicateLabels()` function is no longer needed.
+    // TODO: Since the labels will be auto-generated based on the schema.v*.gqlr file, I need to update this function. Do I still need to check for duplicates? Should I throw an error that would make more sense to users who are working with the schema.v*.gqlr files? Maybe throwing the error above will address this issue now and the `checkForDuplicateLabels()` function is no longer needed.
     checkForDuplicateLabels(module.schema);
 
     // TODO: Check if nodes have all of the properties from the types.ts file.
@@ -231,5 +231,5 @@ else if (args.length === 1) {
   eval(`${args[0]}()`);
 }
 else if (args.length === 0) {
-  console.log('Please provide a function name and a filepath as arguments (e.g. "./schema.v1.gqls")');
+  console.log('Please provide a function name and a filepath as arguments (e.g. "./schema.v1.gqlr")');
 }
