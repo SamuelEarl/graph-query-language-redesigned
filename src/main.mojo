@@ -103,6 +103,7 @@ struct KVStore:
         props["id"] = String("{0}:{1}").format(collection, id)
         # If the collection key is not in the store, then add it along with an empty dict as its value.
         if not collection in self.store:
+            # TODO: I think I need to understand structs and ownership better to understand what is causing this error.
             self.store[collection] = CollectionDict()
             # self.store[collection] = Dict[String, CollectionDict]({ id: props })
             # I think `self.store._find_ref(collection)` returns a mutable reference to an entry in a Dict (https://forum.modular.com/t/how-to-return-a-mutable-reference-to-a-dict-entry/1508/6), but I can't figure out how to add an entry to a Dict.
